@@ -2,7 +2,11 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from "../context/user.context";
 import { useLocation } from "react-router-dom";
 import axios from "../config/axios";
-import { getSocket, receiveMessage, sendMessage } from "../config/socket";
+import {
+  getSocket,
+  receiveMessage,
+  sendMessage,
+} from "../config/socket";
 import Markdown from "markdown-to-jsx";
 import hljs from "highlight.js";
 import { getWebContainer } from "../config/webcontainer";
@@ -78,12 +82,13 @@ const Project = () => {
       message,
       sender: user,
     });
-    setMessages((prevMessages) => [...prevMessages, { sender: user, message }]);
+    setMessages((prevMessages) => [...prevMessages, { sender: user, message }]); // Update messages state
     setMessage("");
   };
 
   function WriteAiMessage(message) {
     const messageObject = JSON.parse(message);
+
     return (
       <div className="overflow-auto bg-slate-950 text-white rounded-sm p-2">
         <Markdown
@@ -100,6 +105,7 @@ const Project = () => {
 
   useEffect(() => {
     getSocket(project._id);
+
     if (!webContainer) {
       getWebContainer().then((container) => {
         setWebContainer(container);
@@ -109,6 +115,7 @@ const Project = () => {
 
     receiveMessage("project-message", (data) => {
       console.log(data);
+
       if (data.sender._id == "ai") {
         const message = JSON.parse(data.message);
 
@@ -126,7 +133,7 @@ const Project = () => {
     });
 
     axios
-      .get(`/project/get-project/${location.state.project._id}`)
+      .get(`/projects/get-project/${location.state.project._id}`)
       .then((res) => {
         console.log(res.data.project);
 
@@ -146,7 +153,7 @@ const Project = () => {
 
   function saveFileTree(ft) {
     axios
-      .put("/project/update-file-tree", {
+      .put("/projects/update-file-tree", {
         projectId: project._id,
         fileTree: ft,
       })
@@ -158,9 +165,13 @@ const Project = () => {
       });
   }
 
+  // function scrollToBottom() {
+  //   messageBox.current.scrollTop = messageBox.current.scrollHeight;
+  // }
+
   return (
     <main className="h-screen w-screen flex">
-      <section className="left relative flex flex-col h-screen min-w-96 bg-slate-400">
+      <section className="left relative flex flex-col h-screen min-w-96 bg-slate-300">
         <header className="flex justify-between items-center p-2 px-4 w-full bg-slate-100 absolute z-10 top-0">
           <button className="flex gap-2" onClick={() => setIsModalOpen(true)}>
             <i className="ri-add-fill mr-1"></i>
@@ -244,7 +255,7 @@ const Project = () => {
       </section>
 
       <section className="right  bg-red-50 flex-grow h-full flex">
-        <div className="explorer h-full max-w-64 min-w-52 bg-slate-200 overflow-y-auto">
+        <div className="explorer h-full max-w-64 min-w-52 bg-slate-200">
           <div className="file-tree w-full">
             {Object.keys(fileTree).map((file, index) => (
               <button
@@ -253,11 +264,9 @@ const Project = () => {
                   setCurrentFile(file);
                   setOpenFiles([...new Set([...openFiles, file])]);
                 }}
-                className="tree-element cursor-pointer p-2 px-4 flex items-center gap-2 bg-slate-300 w-full hover:bg-slate-400 focus:bg-slate-400 focus:outline-none transition-colors duration-200"
+                className="tree-element cursor-pointer p-2 px-4 flex items-center gap-2 bg-slate-300 w-full"
               >
-                <p className="font-semibold text-lg truncate" title={file}>
-                  {file}
-                </p>
+                <p className="font-semibold text-lg">{file}</p>
               </button>
             ))}
           </div>
@@ -380,48 +389,35 @@ const Project = () => {
       </section>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-full relative shadow-lg">
-            {/* Modal Header */}
-            <header className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">
-                Select User
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                aria-label="Close modal"
-              >
-                <i className="ri-close-fill text-xl text-gray-600"></i>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded-md w-96 max-w-full relative">
+            <header className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Select User</h2>
+              <button onClick={() => setIsModalOpen(false)} className="p-2">
+                <i className="ri-close-fill"></i>
               </button>
             </header>
-
-            {/* Users List */}
-            <div className="users-list flex flex-col gap-3 mb-16 max-h-96 overflow-y-auto">
+            <div className="users-list flex flex-col gap-2 mb-16 max-h-96 overflow-auto">
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className={`user cursor-pointer p-3 rounded-lg flex gap-3 items-center transition-colors duration-200 ${
-                    Array.from(selectedUserId).includes(user._id)
+                  className={`user cursor-pointer hover:bg-slate-200 ${
+                    Array.from(selectedUserId).indexOf(user._id) != -1
                       ? "bg-slate-200"
-                      : "hover:bg-gray-100"
-                  }`}
+                      : ""
+                  } p-2 flex gap-2 items-center`}
                   onClick={() => handleUserClick(user._id)}
                 >
-                  <div className="aspect-square w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center">
-                    <i className="ri-user-fill text-white"></i>
+                  <div className="aspect-square relative rounded-full w-fit h-fit flex items-center justify-center p-5 text-white bg-slate-600">
+                    <i className="ri-user-fill absolute"></i>
                   </div>
-                  <h1 className="font-semibold text-lg text-gray-800">
-                    {user.email}
-                  </h1>
+                  <h1 className="font-semibold text-lg">{user.email}</h1>
                 </div>
               ))}
             </div>
-
-            {/* Add Collaborators Button */}
             <button
               onClick={addCollaborators}
-              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-blue-600 text-white rounded-md"
             >
               Add Collaborators
             </button>

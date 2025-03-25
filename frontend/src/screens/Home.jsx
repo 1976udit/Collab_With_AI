@@ -38,23 +38,23 @@ const Home = () => {
   }
 
   return (
-    <main className="p-4">
+    <main className="p-2 flex flex-col gap-6">
       <div className="flex flex-wrap gap-4">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="project p-4 border border-slate-300 rounded-md"
+          className="project p-4 border border-slate-300 rounded-md shadow-sm hover:shadow-md transition-shadow duration-200"
         >
           New Project
-          <i className="ri-link ml-2"></i>
+          <i className="ri-add-line ml-2"></i>
         </button>
 
         {project.map((project) => (
           <div
             key={project._id}
             onClick={() => {
-                navigate(`/project`, {
-                    state: { project }
-                })
+              navigate(`/project`, {
+                state: { project },
+              });
             }}
             className="project flex flex-col gap-2 cursor-pointer p-4 border border-slate-300 rounded-md min-w-52 hover:bg-slate-200"
           >
@@ -71,6 +71,18 @@ const Home = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4">
+        <button
+          onClick={() => {
+            navigate("/review");
+          }}
+          className="flex items-center gap-2 p-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring focus:ring-blue-300"
+          aria-label="Code Review"
+        >
+          <i className="ri-search-line"></i> Code Review
+        </button>
       </div>
 
       {isModalOpen && (
