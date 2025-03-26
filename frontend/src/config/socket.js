@@ -13,9 +13,9 @@ export const getSocket = (projectId) => {
         }
     });
 
-    socketInstance.on('connect_error', (error) => {
-        console.error('Connection Error:', error);
-    });
+    // socketInstance.on('connect_error', (error) => {
+    //     console.error('Connection Error:', error);
+    // });
 
     socketInstance.on('disconnect', (reason) => {
         console.warn('Disconnected:', reason);
@@ -31,5 +31,5 @@ export const receiveMessage = (eventName, cb) => {
 }
 
 export const sendMessage = (eventName, data) => {
-    socketInstance.emit(eventName, data);
+    socketInstance.emit(eventName, data); 
 }

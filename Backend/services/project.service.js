@@ -10,6 +10,7 @@ export const createProject = async ({
     if (!userId) {
         throw new Error('UserId is required')
     }
+    console.log(name)
 
     let project;
     try {

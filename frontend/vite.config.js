@@ -21,6 +21,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-    },
+      '/socket.io': {
+                target: 'http://localhost:8080',
+                ws: true,
+                changeOrigin: true
+      },
   },
-});
+}});

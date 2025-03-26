@@ -22,12 +22,12 @@ const Home = () => {
       });
   }, []);
 
-  function createProject(e) {
+ async function createProject(e) {
     e.preventDefault();
     console.log(projectName);
     setIsModalOpen(false);
 
-    axios
+   await axios
       .post("/project/create", { name: projectName })
       .then((res) => {
         console.log(res.data);

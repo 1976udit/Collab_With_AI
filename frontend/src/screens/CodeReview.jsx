@@ -1,44 +1,35 @@
 import React, {useState, useEffect } from "react";
 import "prismjs/themes/prism-tomorrow.css";
 import prism from "prismjs";
-import rehypeHighlight from "rehype-highlight"
 import "highlight.js/styles/github-dark.css";
-import Editor from "react-simple-code-editor"
+import { CodeiumEditor } from "@codeium/react-code-editor";
 import axios from "axios";
-import Markdown from "react-markdown";
+import Markdown from "markdown-to-jsx";
 
 const CodeReview = () => {
     const [code, setCode] = useState(`function add(a, b) { return a + b; }`);
-    const [review, setReview] = useState('')
+    const [review, setReview] = useState(``)
   useEffect(() => {
     prism.highlightAll();
   }, []);
 
     async function reviewCode() {
     const response = await axios.post('http://localhost:8080/ai/get-review', { code })
-    setReview(JSON.stringify(response.data.review))
-    console.log(response.data)
+    setReview(JSON.stringify(response.data))
+    // console.log(response.data.review)
   }
 
   return (
     <main className="m-0 bg-black h-screen w-full p-6 flex gap-4">
-      <div className="left h-full basis-1/2 relative">
+      <div className="left h-full basis-1/2 relative overflow-auto">
         <div className="code h-full">
-          <Editor
+          <CodeiumEditor 
+            language="javascript"
+            theme="vs-dark"
+            className="border overflow-auto resize max-h-[570px]
+            min-h-[300px] border-gray-500 rounded-lg p-4 bg-black text-white"
             value={code}
-            onValueChange={(code) => setCode(code)}
-            highlight={(code) =>
-              prism.highlight(code, prism.languages.javascript, "javascript")
-            }
-            padding={10}
-            style={{
-              fontFamily: '"Fira code", "Fira Mono", monospace',
-              fontSize: 16,
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              height: "100%",
-              width: "100%",
-            }}
+            onChange={setCode}
           />
         </div>
         <div
@@ -48,8 +39,8 @@ const CodeReview = () => {
           Review
         </div>
       </div>
-      <div className="right h-full basis-1/2 rounded-lg bg-gray-500">
-        <Markdown rehypeplugins={[rehypeHighlight]}>{review}</Markdown>
+      <div className="right h-full basis-1/2 rounded-lg text-lg bg-gray-500">
+        <Markdown>{review}</Markdown>
       </div>
     </main>
   );

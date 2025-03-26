@@ -11,10 +11,12 @@ dotenv.config();
 
 const port = process.env.PORT || 3000;
 const server = http.createServer(app)
-const io = new Server(server,{
-    cors: { 
-        origin: '*'
-    }
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 io.use(async (socket, next) => {   

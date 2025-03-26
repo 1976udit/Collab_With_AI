@@ -16,11 +16,11 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use('/users',userRoutes)
 app.use('/project',projectRoute)
-app.use('/ai',aiRoutes)
+app.use('/ai',aiRoutes)  
 app.use(cookieParser())
 
 app.get('/', (req,res) => {
     res.send("Hello World!")
 })
-
+ 
 export default app

@@ -30,7 +30,7 @@ const Register = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-900">
             <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 text-white">Register</h2>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>   
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-300">Email</label>
                         <input
