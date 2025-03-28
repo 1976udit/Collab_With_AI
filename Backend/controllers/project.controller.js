@@ -78,7 +78,6 @@ export const getUsersInProject = async (req,res) => {
 export const getProjectById = async (req, res) => {
 
     const { projectId } = req.params;
-
     try {
 
         const project = await projectService.getProjectById({ projectId });
@@ -120,3 +119,29 @@ export const updateFileTree = async (req, res) => {
     }
 
 }
+
+export const deleteProjectController = async (req, res) => {
+  const { projectId } = req.params;
+  const loggedInUser = await userModel.findOne({ email: req.user.email });
+  const userId = loggedInUser._id;
+
+  try {
+    const result = await projectService.deleteProject({ projectId, userId });
+    res.status(200).json({
+      message: "Project deleted successfully",
+      deletedProject: result,
+    });
+  } catch (error) {
+    console.error(error);
+
+    const statusCode = error.message.includes("not authorized")
+      ? 403
+      : error.message.includes("not found")
+      ? 404
+      : 400;
+
+    res.status(statusCode).json({
+      error: error.message || "Failed to delete project",
+    });
+  }
+};

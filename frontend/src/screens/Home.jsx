@@ -1,41 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { UserContext } from "../context/user.context";
 import axios from "../config/axios";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
-  // const { user } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
-  const [project, setProject] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null); // Track which project is being deleted
   const navigate = useNavigate();
 
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/project/all");
+      setProjects(response.data.projects);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch projects");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    axios
-      .get("/project/all")
-      .then((res) => {
-        setProject(res.data.projects);
-        // console.log(res.data.projects);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    fetchProjects();
   }, []);
 
- async function createProject(e) {
+  const createProject = async (e) => {
     e.preventDefault();
-    console.log(projectName);
-    setIsModalOpen(false);
 
-   await axios
-      .post("/project/create", { name: projectName })
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
+    try {
+      await axios.post("/project/create", { name: projectName });
+      setProjectName("");
+      setIsModalOpen(false);
+      await fetchProjects();
+    } catch (error) {
+      console.error(error);
+      setError("Failed to create project");
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    if (!window.confirm("Are you sure you want to delete this project?")) {
+      return;
+    }
+
+    try {
+      setDeletingId(projectId);
+      await axios.delete(`/project/delete/${projectId}`);
+      await fetchProjects(); // Refresh the project list
+    } catch (error) {
+      console.error(error);
+      setError("Failed to delete project");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <main className="p-2 flex flex-col gap-6">
@@ -48,36 +71,52 @@ const Home = () => {
           <i className="ri-add-line ml-2"></i>
         </button>
 
-        {project.map((project) => (
-          <div
-            key={project._id}
-            onClick={() => {
-              navigate(`/project`, {
-                state: { project },
-              });
-            }}
-            className="project flex flex-col gap-2 cursor-pointer p-4 border border-slate-300 rounded-md min-w-52 hover:bg-slate-200"
-          >
-            <h2 className="font-semibold">{project.name}</h2>
+        {loading ? (
+          <div>Loading projects...</div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
+        ) : (
+          projects.map((project) => (
+            <div
+              key={project._id}
+              className="project flex flex-col gap-2 p-4 border border-slate-300 rounded-md min-w-52 hover:bg-slate-200 relative"
+            >
+              <div
+                onClick={() => navigate(`/project`, { state: { project } })}
+                className="cursor-pointer"
+              >
+                <h2 className="font-semibold">{project.name}</h2>
+                <div className="flex gap-2">
+                  <p>
+                    <small>
+                      <i className="ri-user-line"></i> Collaborators
+                    </small>
+                    :
+                  </p>
+                  {project.users.length}
+                </div>
+              </div>
 
-            <div className="flex gap-2">
-              <p>
-                <small>
-                  <i className="ri-user-line"></i> Collaborators
-                </small>
-                :
-              </p>
-              {project.users.length}
+              <button
+                onClick={() => deleteProject(project._id)}
+                disabled={deletingId === project._id}
+                className="absolute top-2 right-2 p-1 text-red-500 hover:text-red-700"
+                title="Delete project"
+              >
+                {deletingId === project._id ? (
+                  <i className="ri-loader-4-line animate-spin"></i>
+                ) : (
+                  <i className="ri-delete-bin-line"></i>
+                )}
+              </button>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="mt-4">
         <button
-          onClick={() => {
-            navigate("/review");
-          }}
+          onClick={() => navigate("/review")}
           className="flex items-center gap-2 p-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring focus:ring-blue-300"
           aria-label="Code Review"
         >
@@ -102,11 +141,15 @@ const Home = () => {
                   required
                 />
               </div>
+              {error && <div className="text-red-500 mb-2">{error}</div>}
               <div className="flex justify-end">
                 <button
                   type="button"
                   className="mr-2 px-4 py-2 bg-gray-300 rounded-md"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setError(null);
+                  }}
                 >
                   Cancel
                 </button>

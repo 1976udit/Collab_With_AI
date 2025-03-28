@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from "../context/user.context";
 import { useLocation } from "react-router-dom";
 import axios from "../config/axios";
+import { toast } from "react-toastify";
 import {
   getSocket,
   receiveMessage,
@@ -34,6 +35,7 @@ const Project = () => {
   const [selectedUserId, setSelectedUserId] = useState(new Set()); // Initialized as Set
   const [project, setProject] = useState(location.state.project);
   const [message, setMessage] = useState("");
+  const [isloading, setIsLoading] = useState(false)
   const { user } = useContext(UserContext);
   const messageBox = React.createRef();
 
@@ -63,6 +65,7 @@ const Project = () => {
   };
 
   function addCollaborators() {
+    setIsLoading(true);
     axios
       .put("/project/add-user", {
         projectId: location.state.project._id,
@@ -70,10 +73,21 @@ const Project = () => {
       })
       .then((res) => {
         console.log(res.data);
+        // Ensure addedUsers is an array before spreading
+        const addedUsers = Array.isArray(res.data?.addedUsers)
+          ? res.data.addedUsers
+          : [];
+        setUsers((prev) => [...prev, ...addedUsers]);
         setIsModalOpen(false);
+        setSelectedUserId(new Set());
+        toast.success("Collaborators added successfully");
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
+        toast.error("Failed to add collaborators", "error");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }
 

@@ -153,3 +153,35 @@ export const updateFileTree = async ({ projectId, fileTree }) => {
 
     return project;
 }
+
+export const deleteProject = async ({ projectId, userId }) => {
+  if (!projectId) {
+    throw new Error("projectId is required");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new Error("Invalid projectId");
+  }
+
+  if (!userId) {
+    throw new Error("userId is required");
+  }
+
+  // Check if user is part of the project
+  const project = await projectModel.findOne({
+    _id: projectId,
+    users: userId,
+  });
+
+  if (!project) {
+    throw new Error("User not authorized to delete this project");
+  }
+
+  const deletedProject = await projectModel.findByIdAndDelete(projectId);
+
+  if (!deletedProject) {
+    throw new Error("Project not found");
+  }
+
+  return deletedProject;
+};

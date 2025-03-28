@@ -10,12 +10,12 @@ export const getSocket = (projectId) => {
         },
         query: {
             projectId
-        }
+        },
     });
 
-    // socketInstance.on('connect_error', (error) => {
-    //     console.error('Connection Error:', error);
-    // });
+    socketInstance.on('connect_error', (error) => {
+        console.error('Connection Error:', error);
+    });
 
     socketInstance.on('disconnect', (reason) => {
         console.warn('Disconnected:', reason);
