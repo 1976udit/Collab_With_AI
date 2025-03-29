@@ -26,13 +26,13 @@ export const getReview = async (req, res) => {
 
 export const getDesign = async (req, res) => {
   try {
-    const { prompt } = req.query;
+    const prompt = req.body.prompt;
     
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    const suggestions = await ai.getDesign(prompt);
+    const suggestions = await ai.UIDesign(prompt);
     res.json(suggestions);
   } catch (error) {
     console.error(error);

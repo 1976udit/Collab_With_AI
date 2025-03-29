@@ -6,6 +6,7 @@ import Home from '../screens/Home'
 import Project from '../screens/Project'
 import UserAuth from '../auth/UserAuth'
 import CodeReview from '../screens/CodeReview'
+import DesignSuggestor from '../screens/DesignSuggestor'
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -15,6 +16,8 @@ const AppRoutes = () => {
         <Route path='/Register' element={<Register />} />
         <Route path='/Project' element={<UserAuth><Project /></UserAuth>} />
         <Route path='/review' element={<CodeReview />} />
+        <Route path='/review' element={<CodeReview />} />
+        <Route path='/design' element={<DesignSuggestor />}></Route>
      </Routes>
     </BrowserRouter>
   )

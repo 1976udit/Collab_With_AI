@@ -124,6 +124,16 @@ const Home = () => {
         </button>
       </div>
 
+      <div className="mt-4">
+        <button
+          onClick={() => navigate("/design")}
+          className="flex items-center gap-2 p-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring focus:ring-blue-300"
+          aria-label="Ui Design"
+        >
+          <i className="ri-search-line"></i> UI Designs
+        </button>
+      </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-md shadow-md w-1/3">

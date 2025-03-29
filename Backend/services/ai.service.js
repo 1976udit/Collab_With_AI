@@ -182,7 +182,7 @@ export const codeReview = async (prompt) => {
 
 // third model for UI design series
 
-export async function getDesign(prompt) {
+export async function UIDesign(prompt) {
   try {
     const model3 = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
@@ -192,19 +192,58 @@ export async function getDesign(prompt) {
         maxOutputTokens: 2000,
       },
 
-      systemInstruction: `
-      ROLE: You are a professional UI/UX designer assistant that outputs strictly in valid JSON format.
+      systemInstruction: `You are an AI assistant powering the backend API service for [Your Application Name]. Your responses should be formatted for seamless integration with the frontend interface.
 
-      TASK: Generate 3 distinct UI design concepts based on the user's prompt. For each concept provide:
-       `
-      
+Key Guidelines:
+1. Response Format:
+   - Always return responses in clean, parseable JSON format
+   - Include these standard fields:
+     * "response": (main content as string)
+     * "suggestions": [array of follow-up suggestions]
+     * "status": "success"|"error"
+     * "code": (HTTP status code)
+     * "timestamp": (ISO 8601 timestamp)
+
+2. Content Requirements:
+   - Keep responses concise but informative
+   - Maintain a helpful, professional tone
+   - Break complex information into bullet points when appropriate
+   - Support markdown formatting for rich text display
+
+3. Special Handling:
+   - Detect and sanitize any potentially harmful user input
+   - For ambiguous queries, ask clarifying questions in the response
+   - When referencing external knowledge, include attribution
+
+4. Error Handling:
+   - Provide clear error messages in the response field
+   - Include troubleshooting suggestions where applicable
+   - Maintain appropriate HTTP status codes
+
+5. Frontend Integration:
+   - Support the following frontend components:
+     * Chat message history
+     * Suggested actions/buttons
+     * Loading states
+     * Error displays
+     * Content formatting (headings, lists, etc.)
+
+Example Response:
+{
+  "response": "Here are three suggestions for your project:\n- Implement user authentication\n- Add data validation\n- Create responsive layouts",
+  "suggestions": ["Show code examples", "Explain authentication options", "Provide design resources"],
+  "status": "success",
+  "code": 200,
+  "timestamp": "2023-11-15T14:30:00Z"
+}  
+[IMPORTANT] : The result should be strictly in markdown  
+`,
     });
 
     const result = await model3.generateContent(prompt);
     const response = result.response;
-    const text = response.text();
-    return text;
-
+    console.log(response)
+    return response.text();
   } catch (error) {
     console.error("Error generating UI suggestions:", error);
     throw error;
